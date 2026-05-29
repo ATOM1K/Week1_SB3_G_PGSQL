@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "street": "123 Main St",
+    "city": "New York",
+    "country": "USA",
+    "postalCode": "10001",
+    "isPrimary": true
+  },
+  {
+    "id": 2,
+    "userId": 1,
+    "street": "456 Oak Ave",
+    "city": "Boston",
+    "country": "USA",
+    "postalCode": "02101",
+    "isPrimary": false
+  },
+  {
+    "id": 3,
+    "userId": 2,
+    "street": "789 Pine Rd",
+    "city": "Chicago",
+    "country": "USA",
+    "postalCode": "60601",
+    "isPrimary": true
+  },
+  {
+    "id": 4,
+    "userId": 3,
+    "street": "321 Elm St",
+    "city": "Seattle",
+    "country": "USA",
+    "postalCode": "98101",
+    "isPrimary": true
+  },
+  {
+    "id": 5,
+    "userId": 4,
+    "street": "654 Maple Dr",
+    "city": "Los Angeles",
+    "country": "USA",
+    "postalCode": "90001",
+    "isPrimary": true
+  }
+]

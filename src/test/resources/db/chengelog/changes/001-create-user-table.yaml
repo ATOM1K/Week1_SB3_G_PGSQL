@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-user-table
+      author: developer
+      changes:
+        - createTable:
+            tableName: users
+            remarks: "Таблица пользователей системы"
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: pk_users
+                  remarks: "Уникальный идентификатор пользователя"
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                  remarks: "Полное имя пользователя"
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_users_email
+                  remarks: "Электронная почта (уникальная)"
+              - column:
+                  name: age
+                  type: integer
+                  constraints:
+                    nullable: true
+                  remarks: "Возраст пользователя"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+                  remarks: "Дата и время создания записи"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+                  remarks: "Дата и время последнего обновления записи"

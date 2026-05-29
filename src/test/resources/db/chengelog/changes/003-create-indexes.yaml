@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-indexes
+      author: developer
+      changes:
+        - createIndex:
+            indexName: idx_users_name
+            tableName: users
+            unique: false
+            remarks: "Индекс по полю name для ускорения поиска пользователей по имени"
+            columns:
+              - column:
+                  name: name
+                  sortOrder: ASC
+        - createIndex:
+            indexName: idx_addresses_city
+            tableName: addresses
+            unique: false
+            remarks: "Индекс по городу для ускорения поиска адресов по городу"
+            columns:
+              - column:
+                  name: city
+                  sortOrder: ASC
+        - createIndex:
+            indexName: idx_addresses_user_id
+            tableName: addresses
+            unique: false
+            remarks: "Индекс по user_id для ускорения JOIN‑операций"
+            columns:
+              - column:
+                  name: user_id
+                  sortOrder: ASC

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003
+      author: developer
+      changes:
+        - createIndex:
+            tableName: users
+            indexName: idx_user_name
+            columns:
+              - column:
+                  name: name
+                  type: varchar(255)
