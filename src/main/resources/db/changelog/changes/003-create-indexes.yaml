@@ -1,12 +1,21 @@
 databaseChangeLog:
   - changeSet:
-      id: 003
+      id: 003-create-indexes
       author: developer
       changes:
         - createIndex:
+            indexName: idx_users_name
             tableName: users
-            indexName: idx_user_name
+            unique: false
             columns:
               - column:
                   name: name
-                  type: varchar(255)
+                  sortOrder: ASC
+        - createIndex:
+            indexName: idx_addresses_city
+            tableName: addresses
+            unique: false
+            columns:
+              - column:
+                  name: city
+                  sortOrder: ASC

@@ -6,9 +6,12 @@ springdoc:
 
 spring:
   datasource:
-    url: jdbc:postgresql:localhost:5432/week1_sb3_g_pgsql_db
-    username: week1_db_user
-    password: week1_db_pass
+    url: jdbc:postgresql://localhost:5432/week1_sb3_g_pgsql
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 30000
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -16,5 +19,5 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.yaml

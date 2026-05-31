@@ -16,8 +16,12 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mappings({
-            @Mapping(target = "addresses", source = "addresses")
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "addresses", ignore = true),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true)
     })
+    void updateUserFromDto(UserDto userDto, @MappingTarget User user);
     UserDto toDto(User user);
 
     @Mappings({
