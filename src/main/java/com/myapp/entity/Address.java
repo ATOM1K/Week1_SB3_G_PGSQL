@@ -1,3 +1,7 @@
+package com.myapp.entity;
+
+import jakarta.persistence.*;
+
 @Entity
 @Table(name = "addresses")
 public class Address {
