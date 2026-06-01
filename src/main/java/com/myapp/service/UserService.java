@@ -1,90 +1,107 @@
+package com.myapp.service;
+
+import com.myapp.dto.UserDto;
+import com.myapp.entity.User;
+import com.myapp.mapper.UserMapper;
+import com.myapp.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Optional;
+
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository,
-                       AddressRepository addressRepository,
-                       UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
-        this.addressRepository = addressRepository;
         this.userMapper = userMapper;
     }
 
-    // Создание пользователя
-    public UserDto createUser(UserDto userDto) {
-        User user = userMapper.toEntity(userDto);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-
-        // Сохраняем пользователя и его адреса
-        User savedUser = userRepository.save(user);
-
-        // Обновляем связь в адресах
-        if (userDto.getAddresses() != null) {
-            for (Address address : savedUser.getAddresses()) {
-                address.setUser(savedUser);
-            }
-            addressRepository.saveAll(savedUser.getAddresses());
-        }
-
-        return userMapper.toDto(savedUser);
+    /**
+     * Получает всех пользователей из БД и преобразует их в DTO
+     * @return список UserDto
+     */
+    @Transactional(readOnly = true)
+    public List<UserDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return userMapper.toUserDtos(users);
     }
 
-    // Получение пользователя по ID
+    /**
+     * Находит пользователя по ID и преобразует в DTO
+     * @param id ID пользователя
+     * @return UserDto
+     * @throws RuntimeException если пользователь не найден
+     */
+    @Transactional(readOnly = true)
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         return userMapper.toDto(user);
     }
 
-    // Обновление пользователя
+    /**
+     * Создаёт нового пользователя
+     * @param userDto данные нового пользователя
+     * @return созданный UserDto с заполненным ID
+     */
+    @Transactional
+    public UserDto createUser(UserDto userDto) {
+        // Преобразуем DTO в сущность
+        User user = userMapper.toEntity(userDto);
+
+        // Устанавливаем временные метки
+        user.setCreatedAt(java.time.LocalDateTime.now());
+        user.setUpdatedAt(null);
+
+        // Сохраняем в БД
+        User savedUser = userRepository.save(user);
+
+        // Возвращаем DTO с заполненным ID
+        return userMapper.toDto(savedUser);
+    }
+
+    /**
+     * Обновляет существующего пользователя
+     * @param id ID пользователя для обновления
+     * @param userDto новые данные пользователя
+     * @return обновлённый UserDto
+     * @throws RuntimeException если пользователь не найден
+     */
+    @Transactional
     public UserDto updateUser(Long id, UserDto userDto) {
+        // Находим существующего пользователя
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        existingUser.setName(userDto.getName());
-        existingUser.setEmail(userDto.getEmail());
-        existingUser.setAge(userDto.getAge());
-        existingUser.setUpdatedAt(LocalDateTime.now());
+        // Обновляем поля из DTO (кроме ID и временных меток)
+        userMapper.updateUserFromDto(userDto, existingUser);
 
-        // Обработка адресов
-        if (userDto.getAddresses() != null) {
-            // Удаляем старые адреса
-            addressRepository.deleteByUserId(id);
+        // Обновляем временную метку
+        existingUser.setUpdatedAt(java.time.LocalDateTime.now());
 
-            // Создаём новые адреса
-            List<Address> addresses = userDto.getAddresses().stream()
-                    .map(addressDto -> {
-                        Address address = userMapper.toAddressEntity(addressDto);
-                        address.setUser(existingUser);
-                        return address;
-                    }).collect(Collectors.toList());
-
-            existingUser.setAddresses(addresses);
-        }
-
+        // Сохраняем изменения в БД
         User updatedUser = userRepository.save(existingUser);
+
+        // Возвращаем обновлённый DTO
         return userMapper.toDto(updatedUser);
     }
 
-    // Удаление пользователя
+    /**
+     * Удаляет пользователя по ID
+     * @param id ID пользователя для удаления
+     * @throws RuntimeException если пользователь не найден
+     */
+    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException("User not found with id: " + id);
+            throw new RuntimeException("User not found with id: " + id);
         }
-        addressRepository.deleteByUserId(id); // Сначала удаляем связанные адреса
-        userRepository.deleteById(id);     // Затем удаляем пользователя
-    }
-
-    // Получение всех пользователей
-    public List<UserDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+        userRepository.deleteById(id);
     }
 }

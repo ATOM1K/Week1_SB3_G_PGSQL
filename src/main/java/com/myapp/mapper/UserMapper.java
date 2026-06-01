@@ -6,55 +6,58 @@ import com.myapp.entity.Address;
 import com.myapp.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingTarget;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
-
-    @Mappings({
-            @Mapping(target = "id", ignore = true),
-            @Mapping(target = "addresses", ignore = true),
-            @Mapping(target = "createdAt", ignore = true),
-            @Mapping(target = "updatedAt", ignore = true)
-    })
-    void updateUserFromDto(UserDto userDto, @MappingTarget User user);
-    UserDto toDto(User user);
-
-    @Mappings({
-            @Mapping(target = "addresses", ignore = true),
-            @Mapping(target = "createdAt", ignore = true),
-            @Mapping(target = "updatedAt", ignore = true)
-    })
+    /**
+     * Преобразует DTO в сущность User, игнорируя коллекцию адресов.
+     * Адреса будут обрабатываться отдельно.
+     */
+    @Mapping(target = "addresses", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toEntity(UserDto userDto);
 
+    /**
+     * Обновляет существующую сущность User данными из DTO.
+     * Коллекция адресов игнорируется — будет обновляться отдельно.
+     */
+    @Mapping(target = "addresses", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "id", ignore = true) // ID не должен меняться при обновлении
+    void updateUserFromDto(UserDto userDto, @MappingTarget User user);
+
+    /**
+     * Преобразует сущность User в DTO, включая связанные адреса.
+     */
+    @Mapping(source = "addresses", target = "addresses")
+    UserDto toDto(User user);
+
+    /**
+     * Маппинг списка сущностей User в список DTO.
+     */
     List<UserDto> toUserDtos(List<User> users);
 
-    @Mappings({
-            @Mapping(target = "user", ignore = true)
-    })
-    AddressDto toAddressDto(Address address);
-
-    @Mappings({
-            @Mapping(target = "user", ignore = true)
-    })
+    /**
+     * Преобразует DTO адреса в сущность Address.
+     */
     Address toAddressEntity(AddressDto addressDto);
 
-    List<AddressDto> toAddressDtos(List<Address> addresses);
+    /**
+     * Преобразует сущность Address в DTO адреса.
+     */
+    AddressDto toAddressDto(Address address);
 
+    /**
+     * Маппинг списка DTO адресов в список сущностей Address.
+     */
     List<Address> toAddressEntities(List<AddressDto> addressDtos);
 
     /**
-     * Обновление полей сущности User из DTO, игнорируя связи и временные метки.
+     * Маппинг списка сущностей Address в список DTO адресов.
      */
-    @Mappings({
-            @Mapping(target = "id", ignore = true),
-            @Mapping(target = "addresses", ignore = true),
-            @Mapping(target = "createdAt", ignore = true),
-            @Mapping(target = "updatedAt", ignore = true)
-    })
-    void updateUserFromDto(UserDto userDto, @MappingTarget User user);
+    List<AddressDto> toAddressDtos(List<Address> addresses);
 }
